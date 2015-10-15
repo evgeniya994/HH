@@ -82,8 +82,8 @@ function getUserPostData()
  */
 function checkUserForm(array $post)
     {
-     if(preg_match('~[^а-яёА-ЯЁ ]~u', $post['fio'])) {
-         echo "Ф.И.О введено не верно";
+     if((mb_strlen($post['fio']) < 3) ||preg_match('~[^а-яёА-ЯЁ ]~u', $post['fio'])) {
+         return "Ф.И.О введено не верно";
         }
 
     if (mb_strlen($post['phone']) < 11) {

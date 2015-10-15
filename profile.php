@@ -1,3 +1,5 @@
+<? require_once "inc/header.php"; ?>
+<? require_once "inc/navigation.php"; ?>
 <?php
 //если в сессии нет тек. пользователя, перенаправляем на тсраницу входа.
 if (!$_SESSION['userId']){
@@ -8,8 +10,8 @@ if (!$_SESSION['userId']){
 //информация текущего пользователя из базы
 $currentUser = getUserById($_SESSION['userId']);
 $userAddress = getUserFullAddress($currentUser['id_address']);
-include "inc/header.php";
-include "inc/navigation.php";
+
+
 ?>
 
     <div class="container">

@@ -81,18 +81,18 @@ function getUserPostData()
  * @return bool|string
  */
 function checkUserForm(array $post)
-{
-    if (mb_strlen($post['fio']) < 10) {
-        return "ФИО доджно быть не менее 10 символов.";
-    }
+    {
+     if(preg_match('~[^а-яёА-ЯЁ ]~u', $post['fio'])) {
+         echo "Ф.И.О введено не верно";
+        }
 
     if (mb_strlen($post['phone']) < 11) {
         return "Номер телефона должне быть не менее 11 цифр";
     }
 
-    if (mb_strlen($post['login']) < 10) {
-        return "Логин должен быть не менее 10 символов";
-    }
+    if (preg_match( '/[^0-9a-zA-Z]/', $post['login'])){
+        return "Логин может содержать только цифры и латинские буквы.";}
+
 
     if (mb_strlen($post['password']) < 10) {
         return "Пароль должен быть не менее 10 символов";

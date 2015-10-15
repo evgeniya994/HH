@@ -40,24 +40,7 @@ else {//метод запроса НЕ POST (значит GET)
     include "inc/navigation.php";
 }
 ?>
-<script>
-    $(function() {
-        $('#phone').mask('0(000)-000-00-00');
-    });
-    function checkForm(){
-        var
-            phone = $('#phone').val(),
-            hasError = false;
 
-        if (phone.length != 16){
-            $('#phone').parents('div.form-group').eq(0).addClass('has-error');
-            hasError = true;
-        } else {
-            $('#phone').parents('div.form-group').eq(0).removeClass('has-error');
-        }
-        return !hasError;
-    }
-</script>
     <div class="container">
         <div class="row">
             <div class="col-md-4 col-md-offset-4">

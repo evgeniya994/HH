@@ -22,6 +22,8 @@
                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><?=$USER['fio']?> <span class="caret"></span></a>
                        <ul class="dropdown-menu">
                            <li><a href="profile.php">Профиль</a></li>
+                           <li><a href="products.php">Товары</a></li>
+                           <li><a href="admin.php">админ</a></li>
                            <li role="separator" class="divider"></li>
                            <li><a href="logout.php">Выход</a></li>
                        </ul>

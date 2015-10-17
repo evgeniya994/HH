@@ -75,50 +75,6 @@ function getUserPostData()
     return $data;
 }
 
-/**
- * Проверка формы регистрации пользователя
- * @param array $post
- * @return bool|string
- */
-function checkUserForm(array $post)
-    {
-     if((mb_strlen($post['fio']) < 3) ||preg_match('~[^а-яёА-ЯЁ ]~u', $post['fio'])) {
-         return "Ф.И.О введено не верно";
-        }
-
-    if (mb_strlen($post['phone']) < 11) {
-        return "Номер телефона должне быть не менее 11 цифр";
-    }
-
-    if (preg_match( '/[^0-9a-zA-Z]/', $post['login'])){
-        return "Логин может содержать только цифры и латинские буквы.";}
-
-
-    if (mb_strlen($post['password']) < 10) {
-        return "Пароль должен быть не менее 10 символов";
-    }
-
-    if ($post['password'] != $post['confirm_password']) {
-        return "Пароли не совпадают";
-    }
-    $pattern = '/^(?!(?:(?:\\x22?\\x5C[\\x00-\\x7E]\\x22?)|(?:\\x22?[^\\x5C\\x22]\\x22?)){255,})(?!(?:(?:\\x22?\\x5C[\\x00-\\x7E]\\x22?)|(?:\\x22?[^\\x5C\\x22]\\x22?)){65,}@)(?:(?:[\\x21\\x23-\\x27\\x2A\\x2B\\x2D\\x2F-\\x39\\x3D\\x3F\\x5E-\\x7E]+)|(?:\\x22(?:[\\x01-\\x08\\x0B\\x0C\\x0E-\\x1F\\x21\\x23-\\x5B\\x5D-\\x7F]|(?:\\x5C[\\x00-\\x7F]))*\\x22))(?:\\.(?:(?:[\\x21\\x23-\\x27\\x2A\\x2B\\x2D\\x2F-\\x39\\x3D\\x3F\\x5E-\\x7E]+)|(?:\\x22(?:[\\x01-\\x08\\x0B\\x0C\\x0E-\\x1F\\x21\\x23-\\x5B\\x5D-\\x7F]|(?:\\x5C[\\x00-\\x7F]))*\\x22)))*@(?:(?:(?!.*[^.]{64,})(?:(?:(?:xn--)?[a-z0-9]+(?:-+[a-z0-9]+)*\\.){1,126}){1,}(?:(?:[a-z][a-z0-9]*)|(?:(?:xn--)[a-z0-9]+))(?:-+[a-z0-9]+)*)|(?:\\[(?:(?:IPv6:(?:(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){7})|(?:(?!(?:.*[a-f0-9][:\\]]){7,})(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,5})?::(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,5})?)))|(?:(?:IPv6:(?:(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){5}:)|(?:(?!(?:.*[a-f0-9]:){5,})(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,3})?::(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,3}:)?)))?(?:(?:25[0-5])|(?:2[0-4][0-9])|(?:1[0-9]{2})|(?:[1-9]?[0-9]))(?:\\.(?:(?:25[0-5])|(?:2[0-4][0-9])|(?:1[0-9]{2})|(?:[1-9]?[0-9]))){3}))\\]))$/iD';
-    if (preg_match($pattern, $post['email']) !== 1) {
-        return "Не правильный адрес почты";
-    }
-
-    //Если есть пользователь с такой почтой
-    if (!is_null(getUserByEmail($post['email']))) {
-        return "Указанная почта \"{$post['email']}\" уже используется другим человеком.";
-    }
-    //Если есть пользователь с таким логином
-    if (!is_null(getUserByLogin($post['login']))) {
-        return "Указанный login \"{$post['login']}\" уже используется другим человеком.";
-    }
-    //проверить остальные поля.
-
-    //если все поля заполнены корректно, функция вернет true
-    return true;
-}
 
 /**
  * Возвращает пользователя по E-mail или null если такой почты не в бд
@@ -176,6 +132,72 @@ function getUserById($userId)
     $sql = "SELECT *
 FROM users
 WHERE id_users = {$userId}";
+    $result = $handle->query($sql);
+    if ($result->num_rows == 0) {
+        return null;
+    }
+    return $result->fetch_assoc();
+}
+
+function updateUser(array $data)
+{
+    global $handle;
+    $handle->autocommit(false);
+    //начало транзакции
+    $handle->begin_transaction();
+
+    $query = "UPDATE addresses
+              SET
+                id_city={$data['id_city']},
+                id_street={$data['id_street']},
+                houseNum='{$data['houseNum']}',
+                kv='{$data['kv']}'
+
+               WHERE id_address=$_SESSION[id_address]";
+    $result = $handle->query($query);
+    if ($result === false) {
+        //откат изменений
+        $handle->rollback();
+        return "Не удалось сохранить адрес.";
+    }
+    $id_address = $handle->update_id;//получаем ID сохраненного только что адреса.
+    $query = "UPDATE users
+              SET
+                fio='{$data['fio']}',
+                email='{$data['email']}',
+                id_status={$data['id_status']},
+                phone='{$data['phone']}',
+                login='{$data['login']}',
+                password='{$data['password']}',
+                id_address={$id_address}
+
+              WHERE id_users=$_SESSION[userId]";
+    $result = $handle->query($query);
+    if ($result === true) {
+        //если сохранился успешно, возвращаем ID
+        //return $handle->update_id;
+        $userId = $handle->update_id;
+        //применение изменений.
+        $handle->commit();
+        return $userId;
+    } else {
+        //откат изменений
+        $handle->rollback();
+        return "Не удалось сохранить пользователя.";
+    }
+}
+function getUsers()
+{
+    global $handle;
+    $sql = "SELECT
+users.fio,users.email,users.phone,statuses.name_status,
+CONCAT(cities.name_city, ', ', streets.name_street, ', ', houseNum) as 'fullAddress',
+users.login,users.password,addresses.kv
+FROM users
+LEFT JOIN addresses ON (users.id_address=addresses.id_address)
+LEFT JOIN statuses ON (users.id_status=statuses.id_status)
+LEFT JOIN cities ON (addresses.id_city=cities.id_city)
+LEFT JOIN streets ON (addresses.id_street=streets.id_street)";
     $result = $handle->query($sql);
     if ($result->num_rows == 0) {
         return null;

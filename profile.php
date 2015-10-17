@@ -1,5 +1,3 @@
-<? include "inc/header.php"; ?>
-<? include "inc/navigation.php"; ?>
 <?php
 require_once "functions.php";
 //если в сессии нет тек. пользователя, перенаправляем на тсраницу входа.
@@ -15,7 +13,7 @@ $userAddress = getUserFullAddress($currentUser['id_address']);
 if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
     //1. получить данные формы
-    $post = getUserPostData();
+    $post = getUserProfilePostData();
 
     if ((empty($post['fio'])) || (empty($post['email'])) || (empty($post['phone']))
         || (empty($post['id_status'])) || (empty($post['id_city'])) || (empty($post['id_street']))
@@ -25,11 +23,12 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         echo "ошибка";
     }
     else
-    {  $res = updateUser($post);
-        if (is_numeric($res)) {//сохранилось?
-            $_SESSION['userId'] = $res;
+    {
+        $res = updateUser($post);
+        if ($res) {//сохранилось?
+            //$_SESSION['userId'] = $res; можно не перезаписывать id, он не изменился.
 
-            header("Location: products.php");
+            header("Location: profile.php");
             die;
         } else {
             $error = $res;
@@ -37,7 +36,14 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     }
 
 }
+else {//метод запроса НЕ POST (значит GET)
+    //показать форму.
+
+}
+include "inc/header.php";
+include "inc/navigation.php";
 ?>
+
 
     <div class="container">
         <div class="row">

@@ -15,15 +15,51 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     //1. получить данные формы
     $post = getUserProfilePostData();
 
-    if ((empty($post['fio'])) || (empty($post['email'])) || (empty($post['phone']))
-        || (empty($post['id_status'])) || (empty($post['id_city'])) || (empty($post['id_street']))
-        || (empty($post['houseNum'])) || (empty($post['kv'])) || (empty($post['login']))
-        || (empty($post['password'])))
-    {
-        echo "ошибка";
+    if ((mb_strlen($post['fio']) < 10) || !preg_match('/^[\sа-яa-z]/i', $post['fio'])) {
+        $errorFio = "Ф.И.О введено не верно";
     }
-    else
-    {
+
+    if ((mb_strlen($post['phone']) < 11) || preg_match('/[^0-9]/', $post['phone'])) {
+        $errorPhone = "Номер телефона указан некорректно";
+    }
+
+    if (empty($post['houseNum']) || preg_match('/^[0-9]+[\/а-яА-ЯЁ]/', $post['HouseNum'])) {
+        $errorHouseNum = "Вы не указали дом";
+    }
+
+    if ((mb_strlen($post['login']) < 4) || preg_match('/[^0-9a-zA-Z]/', $post['login'])) {
+        $errorLogin = "Логин может содержать только цифры и латинские буквы.";
+    }
+
+    if (mb_strlen($post['password']) < 10) {
+        $errorPassword = "Неверно введен пароль";
+    }
+
+    $pattern = '/^(?!(?:(?:\\x22?\\x5C[\\x00-\\x7E]\\x22?)|(?:\\x22?[^\\x5C\\x22]\\x22?)){255,})(?!(?:(?:\\x22?\\x5C[\\x00-\\x7E]\\x22?)|(?:\\x22?[^\\x5C\\x22]\\x22?)){65,}@)(?:(?:[\\x21\\x23-\\x27\\x2A\\x2B\\x2D\\x2F-\\x39\\x3D\\x3F\\x5E-\\x7E]+)|(?:\\x22(?:[\\x01-\\x08\\x0B\\x0C\\x0E-\\x1F\\x21\\x23-\\x5B\\x5D-\\x7F]|(?:\\x5C[\\x00-\\x7F]))*\\x22))(?:\\.(?:(?:[\\x21\\x23-\\x27\\x2A\\x2B\\x2D\\x2F-\\x39\\x3D\\x3F\\x5E-\\x7E]+)|(?:\\x22(?:[\\x01-\\x08\\x0B\\x0C\\x0E-\\x1F\\x21\\x23-\\x5B\\x5D-\\x7F]|(?:\\x5C[\\x00-\\x7F]))*\\x22)))*@(?:(?:(?!.*[^.]{64,})(?:(?:(?:xn--)?[a-z0-9]+(?:-+[a-z0-9]+)*\\.){1,126}){1,}(?:(?:[a-z][a-z0-9]*)|(?:(?:xn--)[a-z0-9]+))(?:-+[a-z0-9]+)*)|(?:\\[(?:(?:IPv6:(?:(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){7})|(?:(?!(?:.*[a-f0-9][:\\]]){7,})(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,5})?::(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,5})?)))|(?:(?:IPv6:(?:(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){5}:)|(?:(?!(?:.*[a-f0-9]:){5,})(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,3})?::(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,3}:)?)))?(?:(?:25[0-5])|(?:2[0-4][0-9])|(?:1[0-9]{2})|(?:[1-9]?[0-9]))(?:\\.(?:(?:25[0-5])|(?:2[0-4][0-9])|(?:1[0-9]{2})|(?:[1-9]?[0-9]))){3}))\\]))$/iD';
+    if (preg_match($pattern, $post['email']) !== 1) {
+        $errorEmail = "Не правильный адрес почты";
+    }
+
+    if ($currentUser['email'] != $post['email']){//Если (текущий логин отличается от того что ввели)
+        if (!is_null(getUserByEmail($post['email']))) {//смотрим в базе есть ли такой, Если есть то ошибка
+            $errorEmail ="Указанная почта \"{$post['email']}\" уже используется другим человеком.";
+        }
+    }
+
+    if ($currentUser['login'] != $post['login']){//Если (текущий логин отличается от того что ввели)
+        if (!is_null(getUserByLogin($post['login']))) {//смотрим в базе есть ли такой, Если есть то ошибка
+            $errorLogin ="Указанный login \"{$post['login']}\" уже используется другим человеком.";
+        }
+    }
+
+    $post['kv'] = abs((int)$post['kv']);
+    if ($post['kv'] == 0){
+        //error
+    }
+
+    if ($errorFio == "" && $errorEmail == "" && $errorPhone == "" && $errorHouseNum == "" && $errorLogin == "" &&
+        $errorPassword == ""
+    ) {
         $res = updateUser($post);
         if ($res) {//сохранилось?
             //$_SESSION['userId'] = $res; можно не перезаписывать id, он не изменился.
@@ -34,6 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             $error = $res;
         }
     }
+
 
 }
 else {//метод запроса НЕ POST (значит GET)
@@ -130,9 +167,9 @@ include "inc/navigation.php";
                         <div class="form-group  <?=($errorHouseNum) ? 'has-error' : ''; ?>">
                             <div class="col-sm-12 col-md-offset-2">
 
-                                <input type="text"  class="form-control"   id="houseNum" value="Дом <?=$userAddress['houseNum']?>" name="houseNum">
+                                <input type="text"  class="form-control"   id="houseNum" value="<?=$userAddress['houseNum']?>" name="houseNum">
 
-                                <input type="text"  class="form-control"   id="kv" value="Кв. <?=$userAddress['kv']?>" name="kv">
+                                <input type="number"  class="form-control" min="1"  id="kv" value="<?=$userAddress['kv']?>" name="kv">
 
                             </div>
                             <span class="help-block"><?=$errorHouseNum?></span>

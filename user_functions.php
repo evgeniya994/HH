@@ -208,6 +208,11 @@ function updateUser(array $data)
         return "Не удалось сохранить пользователя.";
     }
 }
+
+/**
+ * Возвращает список пользователей
+ * @return array|null
+ */
 function getUsers()
 {
     global $handle;
@@ -221,8 +226,12 @@ LEFT JOIN statuses ON (users.id_status=statuses.id_status)
 LEFT JOIN cities ON (addresses.id_city=cities.id_city)
 LEFT JOIN streets ON (addresses.id_street=streets.id_street)";
     $result = $handle->query($sql);
-    if ($result->num_rows == 0) {
+    if ($result) {
+        //тут $result - это объект mysq:li_result
+        //echo "успешно";
+        return $result->fetch_all(MYSQLI_ASSOC);
+    } else {
+        //echo "ошибка";
         return null;
     }
-    return $result->fetch_assoc();
 }

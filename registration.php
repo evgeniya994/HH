@@ -52,7 +52,8 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 else {//метод запроса НЕ POST (значит GET)
     //показать форму.
 
-}include "inc/header.php";
+}
+include "inc/header.php";
 include "inc/navigation.php";
 ?>
     <div class="container">

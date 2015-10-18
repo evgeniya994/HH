@@ -76,6 +76,9 @@ function getUserPostData()
     $data['login'] = $_POST['login'];
     $data['password'] = $_POST['password'];
     $data['confirm_password'] = $_POST['confirm_password'];
+
+    // ID роли по умолчанию
+    //$data['id_role'] = 2;//user
     return $data;
 }
 
@@ -217,7 +220,7 @@ function getUsers()
 {
     global $handle;
     $sql = "SELECT
-users.fio,users.email,users.phone,statuses.name_status,
+users.id_users,users.fio,users.email,users.phone,statuses.name_status,
 CONCAT(cities.name_city, ', ', streets.name_street, ', ', houseNum) as 'fullAddress',
 users.login,users.password,addresses.kv
 FROM users
@@ -228,6 +231,20 @@ LEFT JOIN streets ON (addresses.id_street=streets.id_street)";
     $result = $handle->query($sql);
     if ($result) {
         //тут $result - это объект mysq:li_result
+        //echo "успешно";
+        return $result->fetch_all(MYSQLI_ASSOC);
+    } else {
+        //echo "ошибка";
+        return null;
+    }
+}
+function getProducts()
+{
+    global $handle;
+    $sql = "SELECT *
+	       FROM products";
+    $result = $handle->query($sql);
+    if ($result) {
         //echo "успешно";
         return $result->fetch_all(MYSQLI_ASSOC);
     } else {

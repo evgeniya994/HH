@@ -31,7 +31,7 @@ if (is_null($users)){
 		echo ' кв.'.$row['kv'];
 		echo '</td><td>'.$row['login'];
 		echo '</td><td>'.$row['password'];
-		echo '</td><td><button type="submit" class="btn btn-success">&#9998;</button>';
+		echo '</td><td><a href="editUser.php?userId='.$row['id_users'].'" class="btn btn-success">&#9998;</a>';
 		echo'</td></tr>';
 
 	}

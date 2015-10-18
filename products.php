@@ -1,6 +1,21 @@
 <? include "inc/header.php"; ?>
 <? include "inc/navigation.php"; ?>
+<?
+require_once "functions.php";
+?>
 
-<h1>Здесь будут товары с ценами</h1>
-<img src="..." alt="..." class="img-thumbnail">
+<div class="container product-list">
+    <div class="row">
+    <?
+    $products = getProducts();
+    foreach ($products as $row) {
+        $image = $row['image'];
+        echo '<div class="col-md-4">';
+        echo ' <img src="'.$image.'" width="220" height="220" class="img-thumbnail"><br/>';
+        echo '<span>'.$row['name_product'].'</span>';
+        echo '</div>';
+    }
+    ?>
+    </div>
+</div>
 <?php include "inc/footer.php"; ?>

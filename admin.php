@@ -2,6 +2,10 @@
 <? require_once "inc/navigation.php"; ?>
 <?
 require_once "functions.php";
+if ($USER['name_role'] != ADMIN_ROLE_NAME){
+    die("Доступ запрещен.");
+}
+
 $users = getUsers();
 
 if (is_null($users)){

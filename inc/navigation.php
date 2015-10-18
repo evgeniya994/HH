@@ -1,3 +1,6 @@
+<?php
+define('ADMIN_ROLE_NAME', 'admin');
+?>
 <nav class="navbar navbar-default">
     <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
@@ -13,22 +16,25 @@
 
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-           <ul class="nav navbar-nav navbar-right">
-               <? if(!$USER): ?>
-                   <li><a href="login.php">Вход</a></li>
-                   <li><a href="registration.php">Регистрация</a></li>
-               <? else: ?>
-                   <li class="dropdown">
-                       <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><?=$USER['fio']?> <span class="caret"></span></a>
-                       <ul class="dropdown-menu">
-                           <li><a href="profile.php">Профиль</a></li>
-                           <li><a href="products.php">Товары</a></li>
-                           <li><a href="admin.php">Админ</a></li>
-                           <li role="separator" class="divider"></li>
-                           <li><a href="logout.php">Выход</a></li>
-                       </ul>
-                   </li>
-               <? endif; ?>
+            <ul class="nav navbar-nav navbar-right">
+                <? if(!$USER): ?>
+                    <li><a href="login.php">Вход</a></li>
+                    <li><a href="registration.php">Регистрация</a></li>
+                <? else: ?>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><?=$USER['fio']?> <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="profile.php">Профиль</a></li>
+                            <? if($USER['name_role'] == ADMIN_ROLE_NAME): ?>
+                                <li><a href="admin.php">Таблица пользователей</a></li>
+                            <? else: ?>
+                                <li><a href="products.php">Товары</a></li>
+                            <? endif; ?>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="logout.php">Выход</a></li>
+                        </ul>
+                    </li>
+                <? endif; ?>
             </ul>
         </div><!-- /.navbar-collapse -->
     </div><!-- /.container-fluid -->

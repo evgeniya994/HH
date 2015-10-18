@@ -158,8 +158,9 @@ WHERE addresses.id_address = {$addressId}";
 function getUserById($userId)
 {
     global $handle;
-    $sql = "SELECT *
+    $sql = "SELECT users.*, roles.name_role, roles.title
 FROM users
+LEFT JOIN roles ON users.id_role = roles.id_role
 WHERE id_users = {$userId}";
     $result = $handle->query($sql);
     if ($result->num_rows == 0) {

@@ -3,3 +3,13 @@
     width: 40.4%;
 }
 thead {background-color:lightgrey;}
+
+
+.container.product-list {
+    width: 970px;
+}
+.product-list a.thumbnail span {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+}

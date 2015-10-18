@@ -32,12 +32,12 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
     $pattern = '/^(?!(?:(?:\\x22?\\x5C[\\x00-\\x7E]\\x22?)|(?:\\x22?[^\\x5C\\x22]\\x22?)){255,})(?!(?:(?:\\x22?\\x5C[\\x00-\\x7E]\\x22?)|(?:\\x22?[^\\x5C\\x22]\\x22?)){65,}@)(?:(?:[\\x21\\x23-\\x27\\x2A\\x2B\\x2D\\x2F-\\x39\\x3D\\x3F\\x5E-\\x7E]+)|(?:\\x22(?:[\\x01-\\x08\\x0B\\x0C\\x0E-\\x1F\\x21\\x23-\\x5B\\x5D-\\x7F]|(?:\\x5C[\\x00-\\x7F]))*\\x22))(?:\\.(?:(?:[\\x21\\x23-\\x27\\x2A\\x2B\\x2D\\x2F-\\x39\\x3D\\x3F\\x5E-\\x7E]+)|(?:\\x22(?:[\\x01-\\x08\\x0B\\x0C\\x0E-\\x1F\\x21\\x23-\\x5B\\x5D-\\x7F]|(?:\\x5C[\\x00-\\x7F]))*\\x22)))*@(?:(?:(?!.*[^.]{64,})(?:(?:(?:xn--)?[a-z0-9]+(?:-+[a-z0-9]+)*\\.){1,126}){1,}(?:(?:[a-z][a-z0-9]*)|(?:(?:xn--)[a-z0-9]+))(?:-+[a-z0-9]+)*)|(?:\\[(?:(?:IPv6:(?:(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){7})|(?:(?!(?:.*[a-f0-9][:\\]]){7,})(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,5})?::(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,5})?)))|(?:(?:IPv6:(?:(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){5}:)|(?:(?!(?:.*[a-f0-9]:){5,})(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,3})?::(?:[a-f0-9]{1,4}(?::[a-f0-9]{1,4}){0,3}:)?)))?(?:(?:25[0-5])|(?:2[0-4][0-9])|(?:1[0-9]{2})|(?:[1-9]?[0-9]))(?:\\.(?:(?:25[0-5])|(?:2[0-4][0-9])|(?:1[0-9]{2})|(?:[1-9]?[0-9]))){3}))\\]))$/iD';
     if (preg_match($pattern, $post['email']) !== 1) {
-        $errorEmail = "Не правильный адрес почты";
-    }
+    $errorEmail = "Не правильный адрес почты";
+}
 
-    if ($currentUser['email'] != $post['email']){//Если (текущий логин отличается от того что ввели)
-        if (!is_null(getUserByEmail($post['email']))) {//смотрим в базе есть ли такой, Если есть то ошибка
-            $errorEmail ="Указанная почта \"{$post['email']}\" уже используется другим человеком.";
+if ($currentUser['email'] != $post['email']){//Если (текущий логин отличается от того что ввели)
+    if (!is_null(getUserByEmail($post['email']))) {//смотрим в базе есть ли такой, Если есть то ошибка
+        $errorEmail ="Указанная почта \"{$post['email']}\" уже используется другим человеком.";
         }
     }
 
@@ -49,11 +49,12 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
     $post['kv'] = abs((int)$post['kv']);
     if ($post['kv'] == 0){
-        //error
+        $errorKv = "кв. должна быть > 0";
     }
 
     if ($errorFio == "" && $errorEmail == "" && $errorPhone == "" && $errorHouseNum == "" && $errorLogin == "" &&
-        $errorPassword == ""
+        $errorPassword == "" &&
+        $errorKv == ""
     ) {
         $res = updateUser($post);
         if ($res) {//сохранилось?
@@ -163,10 +164,11 @@ include "inc/navigation.php";
 
                                 <input type="text"  class="form-control"   id="houseNum" value="<?=$userAddress['houseNum']?>" name="houseNum">
 
-                                <input type="number"  class="form-control" min="1"  id="kv" value="<?=$userAddress['kv']?>" name="kv">
+                                <input type="number"  class="form-control" id="kv" value="<?=$userAddress['kv']?>" name="kv">
 
                             </div>
                             <span class="help-block"><?=$errorHouseNum?></span>
+                            <span class="help-block"><?=$errorKv?></span>
                         </div>
                     </div>
                     <div class="form-group  <?=($errorLogin) ? 'has-error' : ''; ?>">

@@ -238,11 +238,13 @@ LEFT JOIN streets ON (addresses.id_street=streets.id_street)";
         return null;
     }
 }
-function getProducts()
+function getProducts($id_status)
 {
     global $handle;
     $sql = "SELECT *
-	       FROM products";
+FROM products
+LEFT JOIN products_statuses_price ON products_statuses_price.id_product = products.id_product
+WHERE products_statuses_price.id_status = {$id_status}";
     $result = $handle->query($sql);
     if ($result) {
         //echo "успешно";

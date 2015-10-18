@@ -34,9 +34,13 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     if (!is_null(getUserByLogin($post['login']))) {
         $errorLogin= "Указанный login \"{$post['login']}\" уже используется другим человеком.";
     }
-
+    $post['kv'] = abs((int)$post['kv']);
+    if ($post['kv'] == 0){
+        $errorKv = "кв. должна быть > 0";
+    }
     if($errorFio == "" && $errorEmail == "" && $errorPhone == "" && $errorHouseNum == "" && $errorLogin == "" &&
-        $errorPassword == ""){
+        $errorPassword == "" &&
+        $errorKv == ""){
         $res = saveUser($post);
         //var_dump($res);
         //die;
@@ -130,6 +134,7 @@ include "inc/navigation.php";
                                 <input type="text"  class="form-control" value="<?=($_POST['kv'])?$_POST['kv']:'';?>" id="kv" placeholder="Квартира" name="kv">
                              </div>
                              <span class="help-block"><?=$errorHouseNum?></span>
+                             <span class="help-block"><?=$errorKv?></span>
                          </div>
 
                     </div>

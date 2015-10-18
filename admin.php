@@ -28,7 +28,11 @@ if (is_null($users)){
 		echo '</td><td>'.$row['phone'];
 		echo '</td><td>'.$row['name_status'];
 		echo '</td><td>'.$row['fullAddress'];
-		echo ' кв.'.$row['kv'];
+
+		if (!empty($row['kv']) && $row['kv'] > 0) {
+			echo ' кв.'.$row['kv'];
+		}
+
 		echo '</td><td>'.$row['login'];
 		echo '</td><td>'.$row['password'];
 		echo '</td><td><a href="editUser.php?userId='.$row['id_users'].'" class="btn btn-success">&#9998;</a>';

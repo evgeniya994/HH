@@ -23,7 +23,7 @@
                        <ul class="dropdown-menu">
                            <li><a href="profile.php">Профиль</a></li>
                            <li><a href="products.php">Товары</a></li>
-                           <li><a href="admin.php">админ</a></li>
+                           <li><a href="admin.php">Админ</a></li>
                            <li role="separator" class="divider"></li>
                            <li><a href="logout.php">Выход</a></li>
                        </ul>

@@ -54,11 +54,12 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
     $post['kv'] = abs((int)$post['kv']);
     if ($post['kv'] == 0){
-        //error
+        $errorKv = "кв. должна быть > 0";
     }
 
     if ($errorFio == "" && $errorEmail == "" && $errorPhone == "" && $errorHouseNum == "" && $errorLogin == "" &&
-        $errorPassword == ""
+        $errorPassword == "" &&
+        $errorKv == ""
     ) {
         $res = updateUser($post);
         if ($res) {//сохранилось?
@@ -169,10 +170,11 @@ include "inc/navigation.php";
 
                                 <input type="text"  class="form-control"   id="houseNum" value="<?=$userAddress['houseNum']?>" name="houseNum">
 
-                                <input type="number"  class="form-control" min="1"  id="kv" value="<?=$userAddress['kv']?>" name="kv">
+                                <input type="number"  class="form-control"  id="kv" value="<?=$userAddress['kv']?>" name="kv">
 
                             </div>
                             <span class="help-block"><?=$errorHouseNum?></span>
+                            <span class="help-block"><?=$errorKv?></span>
                         </div>
                     </div>
                     <div class="form-group  <?=($errorLogin) ? 'has-error' : ''; ?>">

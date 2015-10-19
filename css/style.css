@@ -9,3 +9,7 @@ thead {background-color:lightgrey;}
     width: 970px;
     text-align:center;
 }
+
+.help-block {
+    color: red;
+}

@@ -11,7 +11,7 @@ define('ADMIN_ROLE_NAME', 'admin');
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#">HH</a>
+            <a class="navbar-brand" href="index.php">HH</a>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->

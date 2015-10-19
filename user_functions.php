@@ -32,7 +32,8 @@ function saveUser(array $data)
               `phone`,
               `login`,
               `password`,
-              `id_address`
+              `id_address`,
+              `id_role`
               )
               VALUES (
                 '{$data['fio']}',
@@ -41,7 +42,8 @@ function saveUser(array $data)
                 '{$data['phone']}',
                 '{$data['login']}',
                 '{$data['password']}',
-                {$id_address}
+                {$id_address},
+                {$data['id_role']}
               )";
     $result = $handle->query($query);
     if ($result === true) {
@@ -78,7 +80,7 @@ function getUserPostData()
     $data['confirm_password'] = $_POST['confirm_password'];
 
     // ID роли по умолчанию
-    //$data['id_role'] = 2;//user
+    $data['id_role'] = 2;//user
     return $data;
 }
 
@@ -122,6 +124,7 @@ function getUserByEmail($email)
     }
     return $result->fetch_assoc();
 }
+
 function getUserByLogin($login)
 {
     global $handle;
@@ -134,6 +137,7 @@ function getUserByLogin($login)
     }
     return $result->fetch_assoc();
 }
+
 /**
  * Возвращает полный адрес по ID
  * @param $addressId
@@ -158,9 +162,10 @@ WHERE addresses.id_address = {$addressId}";
 function getUserById($userId)
 {
     global $handle;
-    $sql = "SELECT users.*, roles.name_role, roles.title
+    $sql = "SELECT users.*, roles.name_role, roles.title, statuses.name_status
 FROM users
 LEFT JOIN roles ON users.id_role = roles.id_role
+LEFT JOIN statuses ON users.id_status = statuses.id_status
 WHERE id_users = {$userId}";
     $result = $handle->query($sql);
     if ($result->num_rows == 0) {
@@ -239,6 +244,7 @@ LEFT JOIN streets ON (addresses.id_street=streets.id_street)";
         return null;
     }
 }
+
 function getProducts($id_status)
 {
     global $handle;
@@ -254,4 +260,46 @@ WHERE products_statuses_price.id_status = {$id_status}";
         //echo "ошибка";
         return null;
     }
+}
+
+function sendUserToMail($userId){
+    //1. получить пользователя по $id_user - пиши.
+    $user = getUserById($userId);//строка записи из таблицы users
+
+    //2. получить адрес пользователя.
+    $address = getUserFullAddress($user['id_address']);
+
+    /*header("Content-Type: text/html;charset=utf-8");
+    echo '<pre>';
+    print_r($user);
+    print_r($address);
+    die;*/
+//пиши все остальное.
+    $msg = "Ф.И.О: {$user['fio']}
+            Email: {$user['email']}
+            Телефон: {$user['phone']}
+            Статус: {$user['name_status']}
+            Адрес: {$address['fullAddress']}, кв. {$address['kv']}
+            Логин: {$user['login']}
+            Пароль: {$user['password']}";
+    $subject = '';
+    $to = 'admin@gmail.com';//почта получателя
+    $send = sendMail("Name", $to, 'example.ru', 'info@example.ru/', $subject, $msg);
+    return $send;
+}
+
+function sendMail($to_name, $to_email, $from_user, $from_email, $subject = '(No subject)', $message = '') {
+    $from = "{$from_user} <{$from_email}>";
+    $to = "{$to_name} <{$to_email}>";
+    $headers = "From: {from}\r\n" .
+        "Subject: {subject}\r\n" .
+        "MIME-Version: 1.0\r\n" .
+        "Content-Type: text/html; charset=\"UTF-8\"\r\n" .
+        'Reply-To: info@example.ru' . "\r\n" .
+        "Content-Transfer-Encoding: 8bit\r\n";
+    $headers = str_replace('{from}', $from, $headers);
+    $headers = str_replace('{to}', $to, $headers);
+    $headers = str_replace('{subject}', "=?UTF-8?B?" . base64_encode($subject) . "?=", $headers);
+
+    return mail($to, $subject, $message, $headers, "-f Тема <info@example.ru>");
 }
